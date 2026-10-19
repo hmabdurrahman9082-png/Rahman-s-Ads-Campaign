@@ -31,7 +31,7 @@ export async function submitContactInquiry(payload: ContactInquiryPayload) {
       };
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('contact_inquiries')
       .insert([
         {
@@ -44,15 +44,14 @@ export async function submitContactInquiry(payload: ContactInquiryPayload) {
           source: payload.source || 'contact_page',
           status: 'unread',
         },
-      ])
-      .select();
+      ]);
 
     if (error) {
       console.error('Supabase insert error:', error);
       return { success: false, error: error.message };
     }
 
-    return { success: true, data };
+    return { success: true };
   } catch (err: any) {
     console.error('Unexpected error submitting inquiry:', err);
     return { 
