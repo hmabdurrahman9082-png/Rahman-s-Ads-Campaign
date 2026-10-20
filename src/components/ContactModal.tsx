@@ -17,6 +17,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   defaultCategory = 'General Inquiry',
 }) => {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [service, setService] = useState(defaultTopic || 'Meta Ads Strategy');
