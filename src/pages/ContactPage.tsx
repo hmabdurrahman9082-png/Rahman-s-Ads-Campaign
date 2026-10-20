@@ -10,6 +10,7 @@ interface ContactPageProps {
 export const ContactPage: React.FC<ContactPageProps> = ({ onOpenOwnerGuide }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [service, setService] = useState('Meta Ads Campaign Strategy');
   const [message, setMessage] = useState('');
@@ -32,6 +33,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenOwnerGuide }) =>
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errs.email = 'Please enter a valid email address.';
     }
+    if (!phone.trim()) {
+      errs.phone = 'Please provide your phone or WhatsApp number.';
+    } else if (phone.trim().length < 6) {
+      errs.phone = 'Please enter a valid phone number.';
+    }
     if (!message.trim()) {
       errs.message = 'Please describe your advertising goals or questions.';
     } else if (message.trim().length < 10) {
@@ -45,6 +51,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenOwnerGuide }) =>
 -------------------------------------
 Client Name: ${name}
 Email: ${email}
+Phone / WhatsApp: ${phone || 'Not specified'}
 Business / Brand: ${businessName || 'Not specified'}
 Service of Interest: ${service}
 -------------------------------------
@@ -59,6 +66,7 @@ ${message}`;
     const result = await submitContactInquiry({
       name,
       email,
+      phone,
       business_name: businessName,
       service,
       message,
@@ -158,6 +166,22 @@ ${message}`;
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Phone / WhatsApp Number <span className="text-blue-400">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="e.g. 01806755760 or +880..."
+                    className={`w-full px-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.phone ? 'border-rose-500' : 'border-slate-700'
+                    }`}
+                  />
+                  {errors.phone && <p className="text-xs text-rose-400 mt-1">{errors.phone}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Business / Store Name <span className="text-slate-500 font-normal">(Optional)</span>
                   </label>
                   <input
@@ -168,32 +192,32 @@ ${message}`;
                     className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Service of Interest <span className="text-blue-400">*</span>
-                  </label>
-                  <select
-                    value={service}
-                    onChange={(e) => setService(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                  >
-                    <option value="Facebook & Instagram Advertising">Facebook & Instagram Advertising</option>
-                    <option value="Meta Ads Campaign Strategy">Meta Ads Campaign Strategy</option>
-                    <option value="Lead Generation">Lead Generation</option>
-                    <option value="E-commerce Advertising">E-commerce Advertising</option>
-                    <option value="Social Media Marketing">Social Media Marketing</option>
-                    <option value="Ad Creative & Copywriting">Ad Creative & Copywriting</option>
-                    <option value="Campaign Performance Analysis">Campaign Performance Analysis</option>
-                    <option value="Landing Page Optimization">Landing Page Optimization</option>
-                    <option value="Starter Plan Inquiry">Starter Plan Inquiry</option>
-                    <option value="Growth Plan Inquiry">Growth Plan Inquiry</option>
-                    <option value="Custom Plan Inquiry">Custom Plan Inquiry</option>
-                    <option value="Free Course Inquiry">Free Course Inquiry</option>
-                    <option value="Paid Course Inquiry">Paid Course Inquiry</option>
-                    <option value="General Question">General Question</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Service of Interest <span className="text-blue-400">*</span>
+                </label>
+                <select
+                  value={service}
+                  onChange={(e) => setService(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <option value="Facebook & Instagram Advertising">Facebook & Instagram Advertising</option>
+                  <option value="Meta Ads Campaign Strategy">Meta Ads Campaign Strategy</option>
+                  <option value="Lead Generation">Lead Generation</option>
+                  <option value="E-commerce Advertising">E-commerce Advertising</option>
+                  <option value="Social Media Marketing">Social Media Marketing</option>
+                  <option value="Ad Creative & Copywriting">Ad Creative & Copywriting</option>
+                  <option value="Campaign Performance Analysis">Campaign Performance Analysis</option>
+                  <option value="Landing Page Optimization">Landing Page Optimization</option>
+                  <option value="Starter Plan Inquiry">Starter Plan Inquiry</option>
+                  <option value="Growth Plan Inquiry">Growth Plan Inquiry</option>
+                  <option value="Custom Plan Inquiry">Custom Plan Inquiry</option>
+                  <option value="Free Course Inquiry">Free Course Inquiry</option>
+                  <option value="Paid Course Inquiry">Paid Course Inquiry</option>
+                  <option value="General Question">General Question</option>
+                </select>
               </div>
 
               <div>
