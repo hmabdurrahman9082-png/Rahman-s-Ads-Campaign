@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, ArrowRight, Settings, MessageCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, MessageCircle } from 'lucide-react';
 import { brandConfig } from '../config/brandConfig';
 
 export type PageId =
@@ -38,7 +38,7 @@ export const navLinks: NavLinkItem[] = [
   { id: 'contact', label: 'Contact Us' },
 ];
 
-export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenOwnerGuide }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNavClick = (id: PageId) => {
@@ -145,17 +145,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenO
               <span>01883423076</span>
             </a>
 
-            {onOpenOwnerGuide && (
-              <button
-                onClick={onOpenOwnerGuide}
-                title="Owner Configuration & Free Deployment Guide"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-300 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 rounded-md transition-colors whitespace-nowrap cursor-pointer"
-              >
-                <Settings className="w-3.5 h-3.5 text-blue-400" />
-                <span>Owner Guide</span>
-              </button>
-            )}
-
             <button
               onClick={() => handleNavClick('contact')}
               className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors whitespace-nowrap shrink-0 shadow-sm cursor-pointer"
@@ -221,18 +210,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenO
               </a>
             </div>
 
-            {onOpenOwnerGuide && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenOwnerGuide();
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs text-slate-300 bg-slate-900 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors"
-              >
-                <Settings className="w-4 h-4 text-blue-400" />
-                <span>Owner Configuration & Deployment Guide</span>
-              </button>
-            )}
             <button
               onClick={() => handleNavClick('contact')}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors"
