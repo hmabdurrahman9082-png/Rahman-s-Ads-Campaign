@@ -1,231 +1,209 @@
 import React, { useState } from 'react';
-import { ArrowRight, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Layers, Mail, Sparkles, MessageCircle, Send, Check } from 'lucide-react';
-import { paidCoursesData, CourseItem, brandConfig } from '../config/brandConfig';
+import { ArrowRight, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Layers, Mail, MessageCircle, Check } from 'lucide-react';
+import { CourseItem, userWorkstationImg } from '../config/brandConfig';
+import { useLanguage } from '../context/LanguageContext';
+import { useSiteData } from '../context/SiteDataContext';
 
 interface PaidCoursesPageProps {
   onOpenContact: (courseTitle: string) => void;
 }
 
 export const PaidCoursesPage: React.FC<PaidCoursesPageProps> = ({ onOpenContact }) => {
-  const [showAllModules, setShowAllModules] = useState(false);
+  const [showAllModules, setShowAllModules] = useState(true);
+  const { language } = useLanguage();
+  const { paidCoursesData, brandConfig } = useSiteData();
   const cleanWhatsApp = brandConfig.contact.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       
-      {/* Header in clean English with Bengali support note */}
-      <div className="max-w-4xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/60 border border-blue-800 text-blue-400 text-xs font-semibold rounded-md mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Professional Training & Masterclasses</span>
+      {/* Header */}
+      <div className="max-w-3xl">
+        <div className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">
+          {language === 'bn' ? 'প্রফেশনাল মেটা অ্যাডস মাস্টারক্লাস' : 'Professional Training & Masterclasses'}
         </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3">
-          Advanced Meta Ads Paid Masterclasses
+
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-3">
+          {language === 'bn' ? 'অ্যাডভান্সড মেটা অ্যাডস পেইড কোর্স' : 'Advanced Meta Ads Paid Masterclasses'}
         </h1>
-        <p className="text-sm sm:text-base text-blue-400 font-medium mb-4">
-          সম্পূর্ণ বাংলায় ৭টি মডিউলের প্র্যাকটিক্যাল মেটা অ্যাডস ও সেলস ফানেল কোর্স (বিগিনার থেকে প্রফেশনাল লেভেল)
-        </p>
-        <div className="p-4 bg-blue-950/30 border border-blue-900/60 rounded-xl mb-4 text-xs sm:text-sm text-blue-200 font-medium">
-          “৯০% ফেসবুক বিজ্ঞাপন ফেইল করে কারণ অ্যাড চালানোর আগে সঠিক অডিয়েন্স রিসার্চ, কপিরাইটিং, সার্ভার ট্র্যাকিং ও এ/বি টেস্টিং জানা থাকে না।”
-        </div>
-        <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-          Comprehensive, structured training frameworks for business owners, founders, and performance marketers seeking predictable customer acquisition and scalable advertising campaigns.
+
+        <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+          {language === 'bn'
+            ? '৭টি মডিউলের প্র্যাকটিক্যাল মেটা অ্যাডস ও সেলস ফানেল কোর্স। সরাসরি লাইভ অ্যাডস ম্যানেজারে কাজ দেখানো হয়েছে।'
+            : 'Comprehensive 7-Module Practical Meta Ads & Sales Funnel Course taught step-by-step with real-world campaign walkthroughs.'}
         </p>
       </div>
 
-      {/* Honest Status Notice */}
-      <div className="bg-blue-950/20 border border-blue-900/60 rounded-xl p-5 flex items-start gap-3.5 text-xs text-slate-300">
-        <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+      {/* Status Notice */}
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 flex items-start gap-3.5 text-xs text-slate-600 shadow-xs">
+        <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold text-white">Direct Consultation & Batch Enrollment</p>
-          <p className="text-slate-400 leading-relaxed">
-            কোর্সের ভর্তি ও বিস্তারিত তথ্য জানতে সরাসরি WhatsApp (<span className="text-white font-mono font-bold">01883423076</span>) বা Telegram-এ যোগাযোগ করুন। কোনো হিডেন চার্জ বা অটোমেটিক পেমেন্ট কাটা হবে না।
+          <p className="font-bold text-slate-900">
+            {language === 'bn' ? 'সরাসরি পরামর্শ ও ব্যাচে ভর্তি' : 'Direct Consultation & Batch Enrollment'}
+          </p>
+          <p className="text-slate-600 leading-relaxed">
+            {language === 'bn'
+              ? 'কোর্সের ভর্তি ও বিস্তারিত তথ্য জানতে সরাসরি WhatsApp (01883423076) বা Telegram-এ যোগাযোগ করুন।'
+              : 'Direct batch registration with founder Md Abdur Rahman. Connect directly on WhatsApp (01883423076) for schedules.'}
           </p>
         </div>
       </div>
 
-      {/* Flagship Paid Course Card (Single Marquee Card Containing All 7 Modules) */}
-      <div className="bg-[#080F1E] border-2 border-blue-500/80 rounded-2xl overflow-hidden shadow-2xl shadow-blue-950/30 transition-all">
+      {/* Flagship Paid Course Card (With User's Real Photo) */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-md hover:border-blue-300 transition-all">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
           
-          {/* Visual Banner */}
-          <div className="lg:col-span-5 relative bg-slate-900 overflow-hidden min-h-[300px] lg:min-h-full">
+          {/* Visual Banner (Md Abdur Rahman at workstation - 4:3 matching 1280x960) */}
+          <div className="lg:col-span-5 relative bg-slate-100 overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-full">
             <img
-              src={paidCoursesData[0]?.imagePath}
-              alt="Advanced Meta Advertising Mastery Program"
-              className="w-full h-full object-cover"
+              src={userWorkstationImg}
+              alt="Md Abdur Rahman - Advanced Meta Advertising Mastery Program"
+              className="w-full h-full object-cover object-top"
             />
             <div className="absolute top-4 left-4">
-              <span className="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded-md shadow-md">
-                Complete 7-Module Program
+              <span className="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded-md shadow-xs">
+                {language === 'bn' ? '৭টি মডিউলের পূর্ণাঙ্গ প্রোগ্রাম' : 'Complete 7-Module Program'}
               </span>
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 p-3 bg-black/80 backdrop-blur-sm rounded-lg border border-slate-700 text-xs text-slate-300">
-              <span className="font-bold text-white block mb-0.5">কোর্সের ধরন: বাংলা প্র্যাকটিক্যাল মাস্টারক্লাস (ইন্সট্রাক্টর: মোঃ আব্দুর রহমান)</span>
-              <span>ফাউন্ডেশন মডিউল ১ ও ২ সহ মোট ৭টি স্পেশালাইজড মডিউল এই একটি কোর্সেই অন্তর্ভুক্ত।</span>
             </div>
           </div>
 
           {/* Details */}
           <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-blue-400">
+              <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-blue-600">
                 <Layers className="w-4 h-4" />
-                <span>FLAGSHIP PAID MASTERCLASS</span>
+                <span>{language === 'bn' ? 'ফ্ল্যাগশিপ মাস্টারক্লাস' : 'FLAGSHIP PAID MASTERCLASS'}</span>
               </div>
-
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-                Advanced Meta Ads Mastery Program
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+                {language === 'bn' ? 'অ্যাডভান্সড মেটা অ্যাডস মাস্টারক্লাস' : 'Advanced Meta Ads Mastery Program'}
               </h2>
-              <p className="text-sm text-blue-300 font-medium mb-4">
-                মেটা অ্যাডস মাস্টারক্লাস: বিজ্ঞাপন তৈরি থেকে স্কেলিং পর্যন্ত পূর্ণাঙ্গ বাংলা কোর্স
-              </p>
-
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-                ফাউন্ডেশন সেটআপ থেকে শুরু করে রিটার্গেটিং, সেলস কপিরাইটিং, এ/বি টেস্টিং, সার্ভার-সাইড ট্র্যাকিং (GTM/CAPI) এবং প্রফিট অ্যানালাইসিস—একটি কোর্সেই সম্পূর্ণ ৭টি গুরুত্বপূর্ণ ধাপ অন্তর্ভুক্ত করা হয়েছে।
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
+                {language === 'bn'
+                  ? 'অ্যাকাউন্ট সেটআপ, রিটার্গেটিং, সেলস কপিরাইটিং, এ/বি টেস্টিং, সার্ভার-সাইড ট্র্যাকিং (GTM/CAPI) এবং প্রফিট অ্যানালাইসিস—একটি কোর্সেই সম্পূর্ণ ৭টি গুরুত্বপূর্ণ ধাপ অন্তর্ভুক্ত।'
+                  : 'Covering environment setup, customer persona analysis, advanced multi-level retargeting, conversion ad copy, A/B testing frameworks, GTM server-side CAPI tracking, and weekly performance reviews.'}
               </p>
 
               {/* Quick Preview of all 7 Modules inside */}
-              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 mb-6">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
-                  এই একটি কোর্সেই পাবেন ৭টি কমপ্লিট মডিউল:
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 mb-6">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 block mb-2.5">
+                  {language === 'bn' ? 'এই একটি কোর্সেই পাবেন ৭টি কমপ্লিট মডিউল:' : 'All 7 Modules Included in One Enrollment:'}
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
                   {paidCoursesData.map((item, idx) => (
-                    <div key={item.id} className="flex items-start gap-2">
-                      <span className="w-4 h-4 rounded-full bg-blue-600/30 text-blue-400 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                    <div key={item.id} className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold shrink-0">
                         {idx + 1}
                       </span>
-                      <div className="truncate">
-                        <span className="font-semibold text-white truncate block">{item.title}</span>
-                        <span className="text-[11px] text-blue-400 truncate block">{item.bengaliSubtitle}</span>
-                      </div>
+                      <span className="font-medium text-slate-900 truncate">
+                        {language === 'bn' ? item.bengaliSubtitle : item.title}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Why This Course is Helpful for Customers */}
-              <div className="space-y-2 mb-6 text-xs text-slate-300">
+              {/* Clean Value points */}
+              <div className="space-y-2 mb-6 text-xs text-slate-700">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span><strong>সহজ বাংলায় শেখানো:</strong> কোনো কঠিন ইংরেজি টেকনিক্যাল ভাষা ছাড়াই বাস্তব প্রজেক্টে দেখানো।</span>
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span><strong>{language === 'bn' ? 'সহজ বাংলায় শেখানো:' : 'Practical Bengali Explanation:'}</strong> {language === 'bn' ? 'সরাসরি লাইভ মেটা অ্যাডস ম্যানেজারে দেখানো।' : 'Real screen recordings and live campaign workflows.'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span><strong>বাজেটের সুরক্ষা:</strong> কীভাবে অযথা ডলার নষ্ট না করে লাভজনক অ্যাড তৈরি করবেন।</span>
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span><strong>{language === 'bn' ? 'বাজেটের সুরক্ষা:' : 'Budget Protection:'}</strong> {language === 'bn' ? 'বাজেট অপচয় রোধ ও লাভজনকভাবে স্কেলিং।' : 'Prevent ad spend waste and scale profitably.'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span><strong>ডিরেক্ট সাপোর্ট:</strong> WhatsApp ও Telegram-এ প্রশ্ন ও কনফিউশনের সরাসরি সমাধান।</span>
+                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span><strong>{language === 'bn' ? 'ডিরেক্ট সাপোর্ট:' : 'Direct Support:'}</strong> {language === 'bn' ? 'WhatsApp ও Telegram-এ প্রশ্ন ও কনফিউশনের সরাসরি সমাধান।' : 'Direct guidance on WhatsApp and Telegram (01883423076).'}</span>
                 </div>
               </div>
             </div>
 
-            {/* Interactive Toggle & Inquire Buttons */}
-            <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row gap-3 items-center">
-              <button
-                onClick={() => setShowAllModules(!showAllModules)}
-                className="w-full sm:w-auto flex-1 py-3 px-5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            {/* CTAs */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3 items-center">
+              <a
+                href={`https://wa.me/88${cleanWhatsApp}?text=${encodeURIComponent("Hello Rahman, I would like to enroll in the Complete 7-Module Meta Ads Mastery Program.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto flex-1 py-3 px-5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
               >
-                <span>{showAllModules ? 'মডিউল তালিকা বন্ধ করুন (Hide Modules)' : 'সবগুলো ৭টি মডিউল ও টপিক দেখুন (View All 7 Modules)'}</span>
-                {showAllModules ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
+                <MessageCircle className="w-4 h-4" />
+                <span>{language === 'bn' ? 'WhatsApp-এ ভর্তি সম্পন্ন করুন' : 'Enroll on WhatsApp'}</span>
+              </a>
 
               <button
                 onClick={() => onOpenContact('Advanced Meta Ads Mastery Program (7 Modules) Inquiry')}
-                className="w-full sm:w-auto py-3 px-5 bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <Mail className="w-4 h-4" />
-                <span>ভর্তি সংক্রান্ত তথ্য জানুন</span>
+                <span>{language === 'bn' ? 'ফর্ম পূরণ করে ভর্তি তথ্য জানুন' : 'Inquire via Form'}</span>
               </button>
-
-              <a
-                href={`https://wa.me/88${cleanWhatsApp}?text=${encodeURIComponent("Hello Rahman, I would like to inquire about the Complete 7-Module Meta Ads Mastery Program.")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
-                title="Chat on WhatsApp"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>WhatsApp</span>
-              </a>
             </div>
-
           </div>
 
         </div>
       </div>
 
-      {/* Expanded View: All 7 Modules in Detail (Displayed when user clicks the card button) */}
-      {showAllModules && (
-        <div className="space-y-6 pt-4 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400 block mb-1">
-                Detailed Breakdown · বিস্তারিত সিলেবাস
-              </span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                All 7 Specialized Mastery Modules (৭টি পূর্ণাঙ্গ মডিউল)
-              </h3>
-            </div>
-            <button
-              onClick={() => setShowAllModules(false)}
-              className="text-xs text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer py-1.5 px-3 bg-slate-900 border border-slate-800 rounded-md"
-            >
-              <span>ভিউ সংক্ষেপ করুন</span>
-              <ChevronUp className="w-3.5 h-3.5" />
-            </button>
+      {/* Expanded View: All 7 Modules in Detail */}
+      <div className="space-y-6 pt-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 block mb-1">
+              {language === 'bn' ? 'বিস্তারিত সিলেবাস' : 'Detailed Curriculum'}
+            </span>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              {language === 'bn' ? '৭টি পূর্ণাঙ্গ মডিউল ও টপিকসমূহ' : 'All 7 Specialized Mastery Modules'}
+            </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paidCoursesData.map((course: CourseItem, idx) => (
+          <button
+            onClick={() => setShowAllModules(!showAllModules)}
+            className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer py-1.5 px-3 bg-white border border-slate-200 rounded-md shadow-xs"
+          >
+            <span>{showAllModules ? (language === 'bn' ? 'মডিউল গুটিয়ে রাখুন' : 'Collapse') : (language === 'bn' ? 'সব মডিউল খুলুন' : 'Expand All')}</span>
+            {showAllModules ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {showAllModules && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
+            {paidCoursesData.map((course: CourseItem) => (
               <div
                 key={course.id}
-                className="bg-[#080F1E] border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition-all hover:shadow-xl hover:shadow-blue-950/20"
+                className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-blue-400 transition-all hover:shadow-md shadow-sm"
               >
                 <div>
-                  {/* Thumbnail */}
-                  <div className="relative h-44 sm:h-48 bg-slate-900 overflow-hidden">
+                  {/* Thumbnail (User's Photo - 4:3 matching source) */}
+                  <div className="relative aspect-[4/3] w-full bg-slate-100 overflow-hidden border-b border-slate-200/80">
                     <img
-                      src={course.imagePath}
+                      src={userWorkstationImg}
                       alt={course.title}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top"
                     />
                     <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 text-[11px] font-semibold bg-blue-950/90 text-blue-300 border border-blue-800 rounded-md shadow-sm">
+                      <span className="px-2.5 py-1 text-[11px] font-bold bg-blue-600 text-white rounded-md shadow-xs">
                         {course.moduleNumber}
-                      </span>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 text-[11px] font-medium bg-slate-900/90 text-slate-300 border border-slate-700 rounded-md">
-                        {course.level}
                       </span>
                     </div>
                   </div>
 
                   {/* Content */}
                   <div className="p-6">
-                    <h4 className="text-base font-bold text-white mb-0.5 tracking-tight leading-snug">
-                      {course.title}
+                    <h4 className="text-base font-bold text-slate-900 mb-2 tracking-tight leading-snug">
+                      {language === 'bn' ? course.bengaliSubtitle : course.title}
                     </h4>
-                    <p className="text-xs text-blue-400 font-semibold mb-3">
-                      {course.bengaliSubtitle}
-                    </p>
-
-                    <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                    <p className="text-xs text-slate-600 leading-relaxed mb-4">
                       {course.shortDesc}
                     </p>
 
                     {/* Topics */}
-                    <div className="space-y-2 mb-6 pt-3 border-t border-slate-800/80">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                        মূল শিক্ষণীয় পয়েন্ট:
+                    <div className="space-y-2 mb-6 pt-3 border-t border-slate-100">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 block mb-1">
+                        {language === 'bn' ? 'মূল বিষয়বস্তু:' : 'Key Learning Outcomes:'}
                       </span>
                       {course.topics.map((topic, i) => (
-                        <div key={i} className="flex items-start gap-2 text-xs text-slate-300">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+                        <div key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                           <span>{topic}</span>
                         </div>
                       ))}
@@ -234,62 +212,43 @@ export const PaidCoursesPage: React.FC<PaidCoursesPageProps> = ({ onOpenContact 
                 </div>
 
                 {/* Card Action */}
-                <div className="p-6 pt-0 border-t border-slate-800/80">
+                <div className="p-6 pt-0 border-t border-slate-100">
                   <button
                     onClick={() => onOpenContact(`Inquiry for ${course.moduleNumber}: ${course.title}`)}
-                    className="w-full py-2.5 px-4 bg-slate-900 hover:bg-blue-600 text-slate-200 hover:text-white text-xs font-semibold rounded-lg border border-slate-700 hover:border-blue-500 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-2.5 px-4 bg-slate-50 hover:bg-blue-600 text-slate-700 hover:text-white text-xs font-semibold rounded-lg border border-slate-200 hover:border-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>এই মডিউল সম্পর্কে তথ্য জানুন</span>
+                    <span>{language === 'bn' ? 'এই মডিউলের তথ্য জানুন' : 'Inquire for this Module'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Direct Contact Bar with WhatsApp, Telegram, Facebook Page & Optional Number */}
-      <div className="bg-[#080E1C] border border-slate-800 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* Direct Contact Bar */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
         <div>
-          <h3 className="text-lg font-bold text-white mb-1">
-            কোর্সের সিলেবাস বা ভর্তি সংক্রান্ত যেকোনো প্রশ্ন?
+          <h3 className="text-lg font-bold text-slate-900 mb-1">
+            {language === 'bn' ? 'কোর্সের সিলেবাস বা ভর্তি সংক্রান্ত যেকোনো প্রশ্ন?' : 'Have Questions About Syllabus or Enrollment?'}
           </h3>
-          <p className="text-xs sm:text-sm text-slate-400">
-            সরাসরি যোগাযোগ করুন: WhatsApp/Telegram <span className="text-white font-mono font-bold">01883423076</span> | কল: <span className="text-white font-mono font-bold">01806755760</span>
+          <p className="text-xs sm:text-sm text-slate-600">
+            {language === 'bn' ? 'সরাসরি যোগাযোগ করুন: WhatsApp/Telegram' : 'Contact Directly via WhatsApp/Telegram'}{' '}
+            <span className="text-slate-900 font-mono font-bold">01883423076</span> | {language === 'bn' ? 'কল করুন:' : 'Call:'}{' '}
+            <span className="text-slate-900 font-mono font-bold">01806755760</span>
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href={brandConfig.socialLinks.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <span>Facebook Page</span>
-          </a>
-
-          <a
-            href={`https://wa.me/88${cleanWhatsApp}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>WhatsApp (01883423076)</span>
-          </a>
-
-          <a
-            href="https://t.me/+8801883423076"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <Send className="w-4 h-4" />
-            <span>Telegram (01883423076)</span>
-          </a>
-        </div>
+        <a
+          href={`https://wa.me/88${cleanWhatsApp}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-xs shrink-0"
+        >
+          <MessageCircle className="w-4 h-4" />
+          <span>{language === 'bn' ? 'WhatsApp চ্যাট শুরু করুন' : 'Chat on WhatsApp'}</span>
+        </a>
       </div>
 
     </div>

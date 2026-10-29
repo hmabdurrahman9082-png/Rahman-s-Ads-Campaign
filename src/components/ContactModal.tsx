@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Copy, Check, ExternalLink, MessageCircle, AlertCircle, Send, Loader2, ShieldCheck } from 'lucide-react';
-import { brandConfig } from '../config/brandConfig';
+import { X, Mail, Check, ExternalLink, MessageCircle, Send, Loader2, ShieldCheck } from 'lucide-react';
 import { submitContactInquiry } from '../lib/supabase';
+import { useLanguage } from '../context/LanguageContext';
+import { useSiteData } from '../context/SiteDataContext';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -14,8 +15,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   isOpen,
   onClose,
   defaultTopic = '',
-  defaultCategory = 'General Inquiry',
 }) => {
+  const { language, t } = useLanguage();
+  const { brandConfig } = useSiteData();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,368 +26,284 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   const [message, setMessage] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [copied, setCopied] = useState(false);
   const [submittedChoice, setSubmittedChoice] = useState<'pending' | 'ready'>('pending');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [dbSaveStatus, setDbSaveStatus] = useState<'idle' | 'success' | 'fallback'>('idle');
 
   useEffect(() => {
     if (defaultTopic) {
       setService(defaultTopic);
     }
+  }, [defaultTopic]);
+
+  useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = 'hidden';
       setSubmittedChoice('pending');
-      setCopied(false);
-      setDbSaveStatus('idle');
+    } else {
+      document.body.style.overflow = 'unset';
     }
-  }, [defaultTopic, defaultCategory, isOpen]);
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const cleanWhatsApp = brandConfig.contact.whatsappNumber ? brandConfig.contact.whatsappNumber.replace(/[^0-9]/g, '') : '';
+
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Please provide your name.';
+    if (!name.trim()) errs.name = language === 'bn' ? 'অনুগ্রহ করে আপনার নাম লিখুন।' : 'Full name is required.';
     if (!email.trim()) {
-      errs.email = 'Please provide an email address.';
+      errs.email = language === 'bn' ? 'ইমেইল আবশ্যক।' : 'Email is required.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errs.email = 'Please enter a valid email address.';
+      errs.email = language === 'bn' ? 'সঠিক ইমেইল লিখুন।' : 'Valid email is required.';
     }
     if (!phone.trim()) {
-      errs.phone = 'Please provide your phone or WhatsApp number.';
+      errs.phone = language === 'bn' ? 'ফোন বা WhatsApp নম্বরটি লিখুন।' : 'Phone / WhatsApp is required.';
     } else if (phone.trim().length < 6) {
-      errs.phone = 'Please enter a valid phone number.';
+      errs.phone = language === 'bn' ? 'সঠিক নম্বর লিখুন।' : 'Please enter a valid phone number.';
     }
     if (!message.trim()) {
-      errs.message = 'Please write a brief message or describe your project.';
-    } else if (message.trim().length < 10) {
-      errs.message = 'Message should be at least 10 characters.';
+      errs.message = language === 'bn' ? 'আপনার বার্তা লিখুন।' : 'Please describe your request.';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
-
-  const formattedInquiryText = `Inquiry for RAHMAN'S ADS CAMPAIGN
--------------------------------------
-Name: ${name}
-Email: ${email}
-Phone / WhatsApp: ${phone}
-Business: ${businessName || 'Not specified'}
-Service / Interest: ${service}
--------------------------------------
-Message:
-${message}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-    const result = await submitContactInquiry({
-      name,
-      email,
-      phone,
-      business_name: businessName,
-      service,
-      message,
-      source: 'modal',
-    });
-    setIsSubmitting(false);
 
-    if (result.success) {
-      setDbSaveStatus('success');
-    } else {
-      setDbSaveStatus('fallback');
+    try {
+      await submitContactInquiry({
+        name,
+        email,
+        phone,
+        business_name: businessName,
+        service,
+        message,
+        source: 'modal',
+      });
+    } catch (err) {
+      console.error('Modal submit error:', err);
+    } finally {
+      setIsSubmitting(false);
+      setSubmittedChoice('ready');
     }
-    setSubmittedChoice('ready');
-  };
-
-  const handleOpenMailto = () => {
-    const subject = encodeURIComponent(`Inquiry: ${service} - from ${name}`);
-    const body = encodeURIComponent(formattedInquiryText);
-    window.location.href = `mailto:${brandConfig.contact.email}?subject=${subject}&body=${body}`;
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(formattedInquiryText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div 
-        className="relative w-full max-w-xl bg-[#091120] border border-slate-700 rounded-xl shadow-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
+        className="relative bg-white border border-slate-200 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-          aria-label="Close dialog"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="mb-6">
-          <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider block mb-1">
-            Direct Communication
-          </span>
-          <h3 id="modal-title" className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            Contact RAHMAN'S ADS CAMPAIGN
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Discuss your advertising requirements or course questions. We respond within 24 hours.
-          </p>
+        
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">
+              {t('contact.title')}
+            </h3>
+            <p className="text-xs text-slate-500">
+              {language === 'bn' ? 'রহমান্স অ্যাডস ক্যাম্পেইন ডিরেক্ট সাপোর্ট' : "RAHMAN'S ADS CAMPAIGN Direct Support"}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {submittedChoice === 'pending' ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Modal Body */}
+        <div className="p-6">
+          {submittedChoice === 'pending' ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Name */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Your Full Name <span className="text-blue-400">*</span>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  {t('contact.name')} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. John Doe"
-                  className={`w-full px-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.name ? 'border-rose-500' : 'border-slate-700'
+                  placeholder={language === 'bn' ? 'আপনার পূর্ণ নাম' : 'e.g. Tanvir Ahmed'}
+                  className={`w-full px-3.5 py-2 bg-white border rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 ${
+                    errors.name ? 'border-rose-500' : 'border-slate-300'
                   }`}
                 />
-                {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-xs text-rose-500 mt-1">{errors.name}</p>}
               </div>
 
+              {/* Email & Phone */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    {t('contact.email')} <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@business.com"
+                    className={`w-full px-3.5 py-2 bg-white border rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 ${
+                      errors.email ? 'border-rose-500' : 'border-slate-300'
+                    }`}
+                  />
+                  {errors.email && <p className="text-xs text-rose-500 mt-1">{errors.email}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    {t('contact.phone')} <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="018XXXXXXXX"
+                    className={`w-full px-3.5 py-2 bg-white border rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 ${
+                      errors.phone ? 'border-rose-500' : 'border-slate-300'
+                    }`}
+                  />
+                  {errors.phone && <p className="text-xs text-rose-500 mt-1">{errors.phone}</p>}
+                </div>
+              </div>
+
+              {/* Business Name & Service */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    {t('contact.business')}
+                  </label>
+                  <input
+                    type="text"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder={language === 'bn' ? 'ব্যবসার নাম' : 'Business name'}
+                    className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    {t('contact.service')}
+                  </label>
+                  <input
+                    type="text"
+                    value={service}
+                    onChange={(e) => setService(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Message */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Your Email Address <span className="text-blue-400">*</span>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  {t('contact.message')} <span className="text-rose-500">*</span>
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. name@company.com"
-                  className={`w-full px-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.email ? 'border-rose-500' : 'border-slate-700'
+                <textarea
+                  rows={3}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={language === 'bn' ? 'আপনার প্রশ্ন বা বিস্তারিত তথ্য লিখুন...' : 'How can we help your business?'}
+                  className={`w-full px-3.5 py-2 bg-white border rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 ${
+                    errors.message ? 'border-rose-500' : 'border-slate-300'
                   }`}
                 />
-                {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Phone / WhatsApp Number <span className="text-blue-400">*</span>
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. 01806755760 or +880..."
-                  className={`w-full px-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.phone ? 'border-rose-500' : 'border-slate-700'
-                  }`}
-                />
-                {errors.phone && <p className="text-xs text-rose-400 mt-1">{errors.phone}</p>}
+                {errors.message && <p className="text-xs text-rose-500 mt-1">{errors.message}</p>}
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Business / Store Name <span className="text-slate-500">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="e.g. Acme Retail"
-                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+              {/* Transparency Notice */}
+              <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{t('contact.transparency')}</span>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Service / Topic of Interest
-              </label>
-              <select
-                value={service}
-                onChange={(e) => setService(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Facebook & Instagram Advertising">Facebook & Instagram Advertising</option>
-                <option value="Meta Ads Campaign Strategy">Meta Ads Campaign Strategy</option>
-                <option value="Lead Generation Funnel">Lead Generation Funnel</option>
-                <option value="E-commerce Advertising">E-commerce Advertising</option>
-                <option value="Social Media Marketing">Social Media Marketing</option>
-                <option value="Ad Creative & Copywriting">Ad Creative & Copywriting</option>
-                <option value="Campaign Performance Analysis">Campaign Performance Analysis</option>
-                <option value="Landing Page Optimization">Landing Page Optimization</option>
-                <option value="Starter Plan Inquiry">Starter Plan Inquiry</option>
-                <option value="Growth Plan Inquiry">Growth Plan Inquiry</option>
-                <option value="Custom Plan Inquiry">Custom Plan Inquiry</option>
-                <option value="Free Course Inquiries">Free Course Inquiries</option>
-                <option value="Paid Course Inquiries">Paid Course Inquiries</option>
-                <option value="General Question">General Question</option>
-              </select>
-            </div>
+              {/* Submit Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
+                >
+                  {language === 'bn' ? 'বাতিল' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{t('contact.submitting')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>{t('contact.submit')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Message / Campaign Goals <span className="text-blue-400">*</span>
-              </label>
-              <textarea
-                rows={4}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Share your business niche, target goals, or questions..."
-                className={`w-full px-3.5 py-2.5 bg-slate-900 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.message ? 'border-rose-500' : 'border-slate-700'
-                }`}
-              />
-              {errors.message && <p className="text-xs text-rose-400 mt-1">{errors.message}</p>}
-            </div>
+            </form>
+          ) : (
+            /* Submitted Success State */
+            <div className="space-y-5 text-center py-4">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
+                <Check className="w-6 h-6" />
+              </div>
 
-            {/* Security notice */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-3 text-xs text-slate-400 flex items-start gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-              <span>
-                Encrypted & protected with Supabase Row Level Security. Your business details remain strictly private and accessible only to agency management.
-              </span>
-            </div>
-
-            <div className="pt-2 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isSubmitting}
-                className="px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors cursor-pointer flex items-center gap-2 shadow-md"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Submitting to Database...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>Proceed to Send Message</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="space-y-5 animate-in fade-in duration-200">
-            {dbSaveStatus === 'success' ? (
-              <div className="p-4 bg-emerald-950/40 border border-emerald-700/80 rounded-lg">
-                <h4 className="text-sm font-semibold text-emerald-300 mb-1 flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400" />
-                  <span>Inquiry Saved to Database Successfully!</span>
+              <div className="space-y-1">
+                <h4 className="text-lg font-bold text-slate-900">
+                  {language === 'bn' ? 'মেসেজটি সফলভাবে পৌঁছেছে!' : 'Inquiry Received!'}
                 </h4>
-                <p className="text-xs text-emerald-200/90 leading-relaxed">
-                  Thank you! Your request is stored safely in our system. You can also reach out via WhatsApp or email for an immediate response:
+                <p className="text-xs text-slate-600 max-w-sm mx-auto">
+                  {t('contact.success')}
                 </p>
               </div>
-            ) : (
-              <div className="p-4 bg-blue-950/30 border border-blue-800/60 rounded-lg">
-                <h4 className="text-sm font-semibold text-blue-300 mb-1 flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400" />
-                  <span>Your Inquiry is Ready</span>
-                </h4>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Choose how you would like to deliver your inquiry to Rahman:
-                </p>
+
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl max-w-sm mx-auto space-y-2 text-left">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>{language === 'bn' ? 'WhatsApp-এ সরাসরি কথা বলুন' : 'Immediate Response on WhatsApp'}</span>
+                </div>
+                <a
+                  href={`https://wa.me/88${cleanWhatsApp}?text=${encodeURIComponent(
+                    `Hello Rahman's Ads Campaign,\nName: ${name}\nPhone: ${phone}\nTopic: ${service}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                >
+                  <span>{language === 'bn' ? 'WhatsApp মেসেজ পাঠান' : 'Open WhatsApp Chat'}</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
-            )}
 
-            {/* Preview text */}
-            <div className="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono text-slate-300 whitespace-pre-wrap max-h-36 overflow-y-auto">
-              {formattedInquiryText}
+              <div className="pt-2">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                >
+                  {language === 'bn' ? 'বন্ধ করুন' : 'Done'}
+                </button>
+              </div>
             </div>
+          )}
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <button
-                onClick={handleOpenMailto}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Open in Email App</span>
-                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-              </button>
-
-              <button
-                onClick={handleCopy}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors cursor-pointer"
-              >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                <span>{copied ? 'Copied to Clipboard!' : 'Copy Formatted Text'}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <a
-                href={`https://wa.me/8801883423076?text=${encodeURIComponent(formattedInquiryText)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-700 text-emerald-300 text-xs font-semibold rounded-lg transition-colors"
-              >
-                <MessageCircle className="w-4 h-4 text-emerald-400" />
-                <span>WhatsApp</span>
-              </a>
-
-              <a
-                href="https://t.me/+8801883423076"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 bg-sky-950/40 hover:bg-sky-900/50 border border-sky-700 text-sky-300 text-xs font-semibold rounded-lg transition-colors"
-              >
-                <Send className="w-4 h-4 text-sky-400" />
-                <span>Telegram</span>
-              </a>
-
-              <a
-                href={brandConfig.socialLinks.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 bg-blue-950/40 hover:bg-blue-900/50 border border-blue-700 text-blue-300 text-xs font-semibold rounded-lg transition-colors"
-              >
-                <ExternalLink className="w-4 h-4 text-blue-400" />
-                <span>Facebook Page</span>
-              </a>
-            </div>
-
-            <div className="p-2.5 bg-slate-900/60 border border-slate-800 rounded-lg text-center text-xs text-slate-400">
-              <span>Direct Call: <strong className="text-white">01883423076</strong> | Call: <a href="tel:01806755760" className="text-white hover:text-blue-400 underline font-bold font-mono">01806755760</a></span>
-            </div>
-
-            <div className="pt-2 flex justify-between items-center text-xs text-slate-500">
-              <button
-                type="button"
-                onClick={() => setSubmittedChoice('pending')}
-                className="text-slate-400 hover:text-white underline cursor-pointer"
-              >
-                Edit Message
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-slate-400 hover:text-white cursor-pointer"
-              >
-                Close Window
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

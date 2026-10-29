@@ -1,41 +1,49 @@
 import React from 'react';
-import { BookOpen, ArrowRight, AlertCircle, CheckCircle2, Mail, MessageCircle, Send, Sparkles } from 'lucide-react';
-import { freeCoursesData, CourseItem, brandConfig } from '../config/brandConfig';
+import { ArrowRight, AlertCircle, CheckCircle2, MessageCircle } from 'lucide-react';
+import { CourseItem } from '../config/brandConfig';
+import { useLanguage } from '../context/LanguageContext';
+import { useSiteData } from '../context/SiteDataContext';
 
 interface FreeCoursesPageProps {
   onOpenContact: (courseTitle: string) => void;
 }
 
 export const FreeCoursesPage: React.FC<FreeCoursesPageProps> = ({ onOpenContact }) => {
+  const { language } = useLanguage();
+  const { freeCoursesData, brandConfig } = useSiteData();
   const cleanWhatsApp = brandConfig.contact.whatsappNumber.replace(/[^0-9]/g, '');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       
-      {/* Header in clean English */}
-      <div className="max-w-4xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/60 border border-emerald-800 text-emerald-400 text-xs font-semibold rounded-md mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Foundation Resources · 100% Free Sessions</span>
+      {/* Header */}
+      <div className="max-w-3xl">
+        <div className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
+          {language === 'bn' ? 'ফাউন্ডেশন রিসোর্স · ১০০% ফ্রি সেশন' : 'Foundation Resources · 100% Free Sessions'}
         </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
-          Free Meta Ads Foundation Courses
+
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+          {language === 'bn' ? 'ফ্রি মেটা অ্যাডস ফাউন্ডেশন কোর্স' : 'Free Meta Ads Foundation Courses'}
         </h1>
-        <div className="p-4 bg-rose-950/20 border border-rose-900/50 rounded-xl mb-4 text-xs sm:text-sm text-rose-300 font-medium">
-          “90% of Facebook ads fail because advertisers lack fundamental knowledge in these core areas.”
-        </div>
-        <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-          Access our foundational training modules completely free. Learn how to properly configure your Meta Business Suite environment and conduct thorough audience research before spending ad budget.
+
+        <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+          {language === 'bn'
+            ? 'কোনো ফি ছাড়াই আমাদের ফাউন্ডেশন ট্রেনিং মডিউলে যুক্ত হোন। মেটা বিজনেস ম্যানেজার প্রফেশনাল সেটআপ এবং সঠিক অডিয়েন্স রিসার্চের নিয়ম শিখুন।'
+            : 'Access our foundational training modules completely free. Learn how to configure your Meta Business Suite and conduct audience research before spending ad budget.'}
         </p>
       </div>
 
-      {/* Honest Status Notice */}
-      <div className="bg-emerald-950/20 border border-emerald-900/60 rounded-xl p-5 flex items-start gap-3.5 text-xs text-slate-300">
-        <AlertCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+      {/* Status Notice */}
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 flex items-start gap-3.5 text-xs text-slate-600 shadow-xs">
+        <AlertCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold text-white">Pre-Registration & Early Access</p>
-          <p className="text-slate-400 leading-relaxed">
-            Reserve your early access to upcoming live foundation workshops and downloadable checklists. To receive the training materials upon release, use the registration button below or message directly on WhatsApp / Telegram.
+          <p className="font-bold text-slate-900">
+            {language === 'bn' ? 'সরাসরি অ্যাক্সেস ও ম্যাটেরিয়াল সংগ্রহ' : 'Direct Access & Training Materials'}
+          </p>
+          <p className="text-slate-600 leading-relaxed">
+            {language === 'bn'
+              ? 'নিচের হোয়াটসঅ্যাপ বাটনে ক্লিক করে সরাসরি আমাদের সাথে যুক্ত হোন। আমরা আপনাকে প্রয়োজনীয় গাইডলাইন ও সহায়তা প্রদান করব।'
+              : 'Connect directly with Md Abdur Rahman on WhatsApp to receive session guides and training materials.'}
           </p>
         </div>
       </div>
@@ -45,60 +53,46 @@ export const FreeCoursesPage: React.FC<FreeCoursesPageProps> = ({ onOpenContact 
         {freeCoursesData.map((course: CourseItem) => (
           <div
             key={course.id}
-            className="bg-[#080F1E] border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition-all hover:shadow-xl hover:shadow-emerald-950/10"
+            className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-emerald-500 transition-all hover:shadow-md shadow-sm"
           >
             <div>
-              {/* Course Thumbnail Image */}
-              <div className="relative h-48 sm:h-56 bg-slate-900 overflow-hidden">
+              {/* Course Thumbnail Image (User photo - 4:3) */}
+              <div className="relative aspect-[4/3] w-full bg-slate-100 overflow-hidden border-b border-slate-200/80">
                 <img
                   src={course.imagePath}
                   alt={course.title}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top"
                 />
                 <div className="absolute top-3 left-3">
-                  <span className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-800 rounded-md shadow-sm">
-                    {course.moduleNumber}
+                  <span className="px-2.5 py-1 text-[11px] font-bold bg-emerald-600 text-white rounded-md shadow-xs">
+                    {language === 'bn' ? '১০০% ফ্রি কোর্স' : 'Free Course'}
                   </span>
                 </div>
-                <div className="absolute top-3 right-3">
-                  <span className="px-2.5 py-1 text-[11px] font-medium bg-slate-900/90 text-slate-300 border border-slate-700 rounded-md">
-                    লেভেল: {course.level}
-                  </span>
+                <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded text-[11px] font-semibold text-slate-700 shadow-xs">
+                  {course.moduleNumber}
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="p-6 sm:p-8">
-                {/* Status Notice */}
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-800/80 px-2.5 py-0.5 rounded font-semibold">
-                    Free Course
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    100% Free Access
-                  </span>
+              {/* Course Content */}
+              <div className="p-6 sm:p-8 space-y-4">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {language === 'bn' ? course.bengaliSubtitle : course.title}
+                  </h3>
                 </div>
 
-                <h3 className="text-xl font-bold text-white mb-1 tracking-tight">
-                  {course.title}
-                </h3>
-                <p className="text-xs text-emerald-400 font-semibold mb-3">
-                  {course.bengaliSubtitle}
-                </p>
-
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {course.shortDesc}
                 </p>
 
-                {/* Topics Covered */}
-                <div className="space-y-2 mb-6 pt-4 border-t border-slate-800/80">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                    কী কী শিখবেন (মূল শিক্ষণীয় পয়েন্ট):
+                {/* Topics covered */}
+                <div className="space-y-2 pt-3 border-t border-slate-100">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-900 block">
+                    {language === 'bn' ? 'যা যা শেখানো হবে:' : 'Key Syllabus Topics:'}
                   </span>
                   {course.topics.map((topic, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div key={idx} className="flex items-start gap-2 text-xs text-slate-700">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{topic}</span>
                     </div>
                   ))}
@@ -106,69 +100,55 @@ export const FreeCoursesPage: React.FC<FreeCoursesPageProps> = ({ onOpenContact 
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="p-6 sm:p-8 pt-0 border-t border-slate-800/80 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => onOpenContact(`Free Course Early Access: ${course.title}`)}
-                className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            {/* CTAs */}
+            <div className="p-6 sm:p-8 pt-0 space-y-3">
+              <a
+                href={`https://wa.me/88${cleanWhatsApp}?text=${encodeURIComponent(
+                  `Hello Rahman's Ads Campaign, I want to enroll in the free course: ${course.title}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer"
               >
-                <span>ফ্রি কোর্সে অংশ নিন (Free Access)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <MessageCircle className="w-4 h-4" />
+                <span>{language === 'bn' ? 'WhatsApp-এ ফ্রি যুক্ত হোন' : 'Join Free on WhatsApp'}</span>
+              </a>
 
               <button
-                onClick={() => onOpenContact(`Course Inquiry: ${course.title}`)}
-                className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => onOpenContact(`Free Course: ${course.title}`)}
+                className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Mail className="w-3.5 h-3.5" />
-                <span>যোগাযোগ করুন</span>
+                <span>{language === 'bn' ? 'ফর্ম পূরণ করে রেজিস্ট্রেশন করুন' : 'Register via Website Form'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Direct Contact Bar with WhatsApp, Telegram, Facebook Page & Optional Number */}
-      <div className="bg-[#080E1C] border border-slate-800 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* Need Advanced Training? Strip */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
-          <h3 className="text-lg font-bold text-white mb-1">
-            Need Direct Assistance or Free Course Guidance?
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 block mb-1">
+            {language === 'bn' ? 'সম্পূর্ণ ৭-মডিউল মাস্টারক্লাস' : 'Complete 7-Module Mastery'}
+          </span>
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
+            {language === 'bn' ? 'পেইড মাস্টারক্লাস প্রোগ্রামে আপগ্রেড করতে চান?' : 'Looking for Complete End-to-End Meta Ads Mastery?'}
           </h3>
-          <p className="text-xs sm:text-sm text-slate-400">
-            Reach out directly via WhatsApp / Telegram: <span className="text-white font-mono font-bold">01883423076</span> | Direct Call: <span className="text-white font-mono font-bold">01806755760</span>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl leading-relaxed">
+            {language === 'bn'
+              ? 'আমাদের পূর্ণাঙ্গ পেইড প্রোগ্রামে রিটার্গেটিং, এ/বি টেস্টিং, জিটিএম সার্ভার-সাইড পিক্সেল ট্র্যাকিং ও বাজেট স্কেলিং শেখানো হয়।'
+              : 'Includes custom audiences, high-converting copywriting, GTM server-side tracking, and scaling.'}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href={brandConfig.socialLinks.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <span>Facebook Page</span>
-          </a>
-
-          <a
-            href={`https://wa.me/88${cleanWhatsApp}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>WhatsApp (01883423076)</span>
-          </a>
-
-          <a
-            href="https://t.me/+8801883423076"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <Send className="w-4 h-4" />
-            <span>Telegram (01883423076)</span>
-          </a>
-        </div>
+        <a
+          href="#/paid-courses"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shrink-0 shadow-sm inline-flex items-center gap-2"
+        >
+          <span>{language === 'bn' ? 'পেইড কোর্স সিলেবাস দেখুন' : 'View Paid Courses'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </a>
       </div>
 
     </div>

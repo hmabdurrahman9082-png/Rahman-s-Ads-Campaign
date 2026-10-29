@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, ArrowRight } from 'lucide-react';
-import { faqData, FaqItem } from '../config/brandConfig';
+import { ChevronDown, HelpCircle, ArrowRight, MessageCircle } from 'lucide-react';
+import { FaqItem } from '../config/brandConfig';
+import { useLanguage } from '../context/LanguageContext';
+import { useSiteData } from '../context/SiteDataContext';
 
 interface FaqPageProps {
   onOpenContact: (topic?: string) => void;
 }
 
 export const FaqPage: React.FC<FaqPageProps> = ({ onOpenContact }) => {
+  const { language } = useLanguage();
+  const { faqData } = useSiteData();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [openId, setOpenId] = useState<string>(faqData[0]?.id || '');
 
-  const categories = ['All', 'Services', 'Budget', 'Communication', 'Courses'];
+  const categories = [
+    { id: 'All', labelEn: 'All Questions', labelBn: 'সব প্রশ্ন' },
+    { id: 'Services', labelEn: 'Services', labelBn: 'সার্ভিসসমূহ' },
+    { id: 'Budget', labelEn: 'Budget & Billing', labelBn: 'বাজেট ও বিলিং' },
+    { id: 'Communication', labelEn: 'Communication', labelBn: 'যোগাযোগ' },
+    { id: 'Courses', labelEn: 'Courses', labelBn: 'কোর্সসমূহ' },
+  ];
 
   const filteredFaqs = selectedCategory === 'All' 
     ? faqData 
@@ -25,32 +35,34 @@ export const FaqPage: React.FC<FaqPageProps> = ({ onOpenContact }) => {
       
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto">
-        <span className="text-xs font-bold uppercase tracking-wider text-blue-400 block mb-2">
-          Frequently Asked Questions
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-600 block mb-2">
+          {language === 'bn' ? 'সাধারণ জিজ্ঞাসা ও উত্তর' : 'Frequently Asked Questions'}
         </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
-          Clear, Honest Answers to Common Questions
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+          {language === 'bn' ? 'আপনার প্রয়োজনীয় সব প্রশ্নের পরিষ্কার উত্তর' : 'Clear, Honest Answers to Common Questions'}
         </h1>
-        <p className="text-sm text-slate-300 leading-relaxed">
-          Everything you need to know about how we manage campaigns, separate ad spend from management fees, and collaborate with your team.
+        <p className="text-sm text-slate-600 leading-relaxed">
+          {language === 'bn'
+            ? 'ক্যাম্পেইন পরিচালনা, বিলিং নীতিমালা এবং ক্লায়েন্ট সাপোর্টের যাবতীয় সাধারণ প্রশ্নের সমাধান।'
+            : 'Everything you need to know about how we manage campaigns, separate ad spend from management fees, and collaborate with your team.'}
         </p>
       </div>
 
-      {/* Category Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-slate-900/80 border border-slate-800 rounded-xl max-w-md mx-auto">
-        {categories.map((category) => {
-          const isActive = selectedCategory === category;
+      {/* Category Pills Filter */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {categories.map((cat) => {
+          const isActive = selectedCategory === cat.id;
           return (
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                 isActive
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
               }`}
             >
-              {category}
+              {language === 'bn' ? cat.labelBn : cat.labelEn}
             </button>
           );
         })}
@@ -60,34 +72,29 @@ export const FaqPage: React.FC<FaqPageProps> = ({ onOpenContact }) => {
       <div className="space-y-3">
         {filteredFaqs.map((faq: FaqItem) => {
           const isOpen = openId === faq.id;
+          const displayQuestion = language === 'bn' && faq.bengaliQuestion ? faq.bengaliQuestion : faq.question;
           return (
             <div
               key={faq.id}
-              className="bg-[#080F1E] border border-slate-800 rounded-xl overflow-hidden transition-colors"
+              className="bg-white border border-slate-200 rounded-xl overflow-hidden transition-colors shadow-xs"
             >
               <button
                 onClick={() => toggleAccordion(faq.id)}
-                className="w-full p-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-900/40 transition-colors"
-                aria-expanded={isOpen}
+                className="w-full text-left p-5 sm:p-6 flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-blue-400 bg-blue-950/40 border border-blue-900/60 px-2 py-0.5 rounded">
-                    {faq.category}
-                  </span>
-                  <span className="text-sm sm:text-base font-semibold text-white tracking-tight">
-                    {faq.question}
-                  </span>
-                </div>
+                <span className="text-sm sm:text-base font-bold text-slate-900">
+                  {displayQuestion}
+                </span>
                 <ChevronDown
                   className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${
-                    isOpen ? 'rotate-180 text-blue-400' : ''
+                    isOpen ? 'rotate-180 text-blue-600' : ''
                   }`}
                 />
               </button>
-
+              
               {isOpen && (
-                <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-950/40">
-                  {faq.answer}
+                <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                  <p>{faq.answer}</p>
                 </div>
               )}
             </div>
@@ -95,20 +102,35 @@ export const FaqPage: React.FC<FaqPageProps> = ({ onOpenContact }) => {
         })}
       </div>
 
-      {/* Still have questions */}
-      <div className="bg-[#080E1C] border border-slate-800 rounded-xl p-8 text-center">
-        <HelpCircle className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-        <h3 className="text-base font-bold text-white mb-1">Have a question that is not covered here?</h3>
-        <p className="text-xs text-slate-400 mb-5 max-w-md mx-auto">
-          We are happy to answer any specific inquiries regarding your industry, Meta ad policies, or custom timelines.
+      {/* Still Have Questions Box */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-sm">
+        <h3 className="text-lg font-bold text-slate-900 mb-2">
+          {language === 'bn' ? 'অন্য কোনো প্রশ্ন আছে?' : 'Still Have an Unanswered Question?'}
+        </h3>
+        <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mb-6">
+          {language === 'bn'
+            ? 'সরাসরি WhatsApp-এ কথা বলে আপনার প্রশ্নটির স্পষ্ট উত্তর জেনে নিন।'
+            : 'Get in touch directly and we will provide an honest, straightforward answer.'}
         </p>
-        <button
-          onClick={() => onOpenContact('Unanswered FAQ Question')}
-          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer inline-flex items-center gap-2"
-        >
-          <span>Ask Us Directly</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
+
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="https://wa.me/8801883423076"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>WhatsApp (01883423076)</span>
+          </a>
+
+          <button
+            onClick={() => onOpenContact('Unanswered Question')}
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs"
+          >
+            {language === 'bn' ? 'মেসেজ পাঠান' : 'Contact Us Directly'}
+          </button>
+        </div>
       </div>
 
     </div>
